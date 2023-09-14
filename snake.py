@@ -1,6 +1,7 @@
 import curses
 import random
 
+#helper to draw snake
 def draw_snake(win, snake, symbol):
     for y, x in snake:
         win.addch(y, x, symbol)
@@ -26,6 +27,7 @@ def main(stdscr):
 
     while True:
         next_key = win.getch()
+        #if timeout (no action), continue moving in same direction
         direction = direction if next_key == -1 else next_key
 
         y, x = snake[0]
@@ -39,11 +41,12 @@ def main(stdscr):
         elif direction == curses.KEY_DOWN:
             y += 1
 
+        #new head of snake
         snake.insert(0, (y, x))
 
         win.clear()
 
-        # Draw boundaries
+        #draw boundaries
         win.hline(0, 1, '-', 58)
         win.hline(19, 1, '-', 58)
         win.vline(1, 0, '|', 18)
@@ -51,23 +54,22 @@ def main(stdscr):
 
         win.addstr(0, 0, "Score:" + str(score))
 
-        # Check if snake hit the border or itself
+        #check if snake hit the border or itself
         if y in [0, 19] or x in [0, 59] or snake[0] in snake[1:]:
             curses.endwin()
             quit()
 
         
-
+        #check if snake ate food
         if snake[0] == (food_y, food_x):
             food_x = random.randint(1, 58)
             food_y = random.randint(1, 18)
             score = score + 1
             
-
+        #if snake didn't eat food, remove oldest tail to maintain length
         else:
             tail = snake.pop()
-            win.addch(tail[0], tail[1], ' ')
-
+            
         draw_snake(win, snake, curses.ACS_CKBOARD)
         win.addch(food_y, food_x, curses.ACS_PI)
 
